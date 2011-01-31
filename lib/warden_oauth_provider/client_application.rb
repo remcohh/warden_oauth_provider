@@ -1,8 +1,8 @@
 module WardenOauthProvider
   class ClientApplication < ActiveRecord::Base
 
-    # has_many :tokens, :class_name => "OauthToken"
-    # has_many :access_tokens
+    has_many :tokens, :class_name => "OauthToken"
+    has_many :access_tokens
     # has_many :oauth2_verifiers
     # has_many :oauth_tokens
     validates_presence_of :name, :url, :key, :secret

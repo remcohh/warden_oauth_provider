@@ -4,6 +4,8 @@ module WardenOauthProvider
     belongs_to :user
     validates_uniqueness_of :token
     validates_presence_of :client_application, :token
+    
+    scope :validated, where("authorized_at IS NOT NULL and invalidated_at IS NULL")
 
     before_validation(:on => :create) do
       self.token = OAuth::Helper.generate_key(40)[0,40]

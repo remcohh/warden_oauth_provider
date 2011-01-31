@@ -47,7 +47,7 @@ module RequestHelper
   
   def failure_app
     lambda do |env|
-      [401, {"Content-Type" => "text/plain"}, ["You Fail!"]]
+      [401, {"Content-Type" => "text/plain"}, ["You Fail! #{env['warden'].message}"]]
     end
   end
   

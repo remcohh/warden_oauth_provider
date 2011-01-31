@@ -6,8 +6,16 @@ describe "Request token" do
     
     before(:all) do
       @client_application = Factory.create(:client_application)
-      auth_signature = @client_application.secret + "%26"
-      auth_str = sprintf('OAuth realm="MoneyBird", oauth_consumer_key="%s", oauth_signature_method="PLAINTEXT", oauth_timestamp="%d", oauth_nonce="%f", oauth_callback="oob", oauth_signature="%s"', @client_application.key, Time.now.to_i, Time.now.to_f, @client_application.secret)
+      
+      auth_str = oauth_header({
+        :realm                  => "MoneyBird",
+        :oauth_consumer_key     => @client_application.key,
+        :oauth_signature_method => "PLAINTEXT",
+        :oauth_timestamp        => Time.now.to_i,
+        :oauth_nonce            => Time.now.to_f,
+        :oauth_callback         => "oob",
+        :oauth_signature        => @client_application.secret + "%26"
+      })
       
       env = env_with_params("/oauth/request_token", {}, {
         "HTTP_AUTHORIZATION" => auth_str
@@ -39,7 +47,15 @@ describe "Request token" do
   
   context "Failure" do
     it "should response with a 401 if consumer key or signature are invalid" do
-      auth_str = sprintf('OAuth realm="MoneyBird", oauth_consumer_key="%s", oauth_signature_method="PLAINTEXT", oauth_timestamp="%d", oauth_nonce="%f", oauth_callback="oob", oauth_signature="%s"', "1234", Time.now.to_i, Time.now.to_f, "abcd")
+      auth_str = oauth_header({
+        :realm                  => "MoneyBird",
+        :oauth_consumer_key     => "123456789",
+        :oauth_signature_method => "PLAINTEXT",
+        :oauth_timestamp        => Time.now.to_i,
+        :oauth_nonce            => Time.now.to_f,
+        :oauth_callback         => "oob",
+        :oauth_signature        => "testsignature"
+      })
       
       env = env_with_params("/oauth/request_token", {}, {
         "HTTP_AUTHORIZATION" => auth_str

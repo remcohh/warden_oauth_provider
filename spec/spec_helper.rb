@@ -6,6 +6,7 @@ require 'warden_oauth_provider'
 require 'rack'
 require 'sqlite3'
 require 'factory_girl'
+require 'logger'
 
 require 'helpers/factories'
 require 'helpers/request_helper'
@@ -19,6 +20,7 @@ end
 ENV['RAILS_ENV'] = 'test'
 ActiveRecord::Base.establish_connection(:adapter => 'sqlite3', :database => ':memory:')
 ActiveRecord::Migration.verbose = false
+ActiveRecord::Base.logger = Logger.new("test.log")
 
 ActiveRecord::Schema.define do
   create_table :client_applications, :force => true do |t|
