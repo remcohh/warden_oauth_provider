@@ -56,7 +56,6 @@ describe "Authorize" do
       url = sprintf("/oauth/authorize?oauth_token=%s&authorize=1", @oauth_token)
       
       env = env_with_params(url, {}, {
-        "HTTP_AUTHORIZATION" => auth_str
         # Basic authen
       })
       @response = setup_rack.call(env)
@@ -66,13 +65,12 @@ describe "Authorize" do
     it "should have an oauth token" do
       @oauth_response.keys.should include("oauth_token")
       @oauth_response["oauth_token"].should_not be_nil
-      @oauth_token = @oauth_response["oauth_token"]
     end
     
     it "should have an oauth verifier" do
-      @oauth_response.keys.should include("oauth_token_secret")
-      @oauth_response["oauth_token_secret"].should_not be_nil
-      @oauth_token_secret = @oauth_response["oauth_token_secret"]
+      @oauth_response.keys.should include("oauth_verifier")
+      @oauth_response["oauth_verifier"].should_not be_nil
+      @oauth_verifier = @oauth_response["oauth_verifier"]
     end
     
   end
@@ -100,12 +98,12 @@ describe "Access token" do
       @oauth_response = Hash[*@response.last.first.split("&").collect { |v| v.split("=") }.flatten]
     end
     
-    it "should have an oauth token" do
+    it "should have an oauth access token" do
       @oauth_response.keys.should include("oauth_token")
       @oauth_response["oauth_token"].should_not be_nil
     end
     
-    it "should have an oauth token secret" do
+    it "should have an oauth access token secret" do
       @oauth_response.keys.should include("oauth_token_secret")
       @oauth_response["oauth_token_secret"].should_not be_nil
     end
