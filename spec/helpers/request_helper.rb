@@ -22,7 +22,7 @@ module RequestHelper
     end
     
     opts[:failure_app]         ||= failure_app
-    opts[:default_strategies]  ||= [:oauth, :success]
+    opts[:default_strategies]  ||= [:oauth_provider, :success]
     opts[:oauth_request_token_path] ||= "/oauth/request_token"
     opts[:oauth_access_token_path] ||= "/oauth/access_token"
     

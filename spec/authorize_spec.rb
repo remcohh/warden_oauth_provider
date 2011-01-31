@@ -23,7 +23,7 @@ describe "Authorize" do
     end
     
     it "should have stored the oauth verifier in the database" do
-      WardenOauthProvider::RequestToken.where(:token => @oauth_response["oauth_token"], :verifier => @oauth_response["oauth_verifier"]).count.should == 1
+      WardenOauthProvider::Token::Request.where(:token => @oauth_response["oauth_token"], :verifier => @oauth_response["oauth_verifier"]).count.should == 1
     end
     
   end

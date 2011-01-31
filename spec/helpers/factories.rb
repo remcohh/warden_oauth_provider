@@ -5,10 +5,10 @@ Factory.define(:client_application, :class => WardenOauthProvider::ClientApplica
   f.callback_url    "http://www.example.com/callback"
 end
 
-Factory.define(:request_token, :class => WardenOauthProvider::RequestToken) do |f|
+Factory.define(:request_token, :class => WardenOauthProvider::Token::Request) do |f|
 end
 
-Factory.define(:access_token, :class => WardenOauthProvider::AccessToken) do |f|
+Factory.define(:access_token, :class => WardenOauthProvider::Token::Access) do |f|
 end
 
 Factory.define(:user) do |f|

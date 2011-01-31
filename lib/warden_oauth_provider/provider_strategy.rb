@@ -2,13 +2,11 @@ require 'oauth/request_proxy/rack_request'
 require 'oauth/signature/plaintext'
 
 require 'warden_oauth_provider/client_application'
-require 'warden_oauth_provider/request_token'
-require 'warden_oauth_provider/access_token'
-require 'warden_oauth_provider/oauth_nonce'
+require 'warden_oauth_provider/nonce'
 
 module WardenOauthProvider
   
-  class Strategy < Warden::Strategies::Base
+  class ProviderStrategy < Warden::Strategies::Base
     include OAuth::Helper
     
     def valid?
@@ -22,7 +20,7 @@ module WardenOauthProvider
       when warden.config.oauth_request_token_path
         
         # Return a request token for the client application
-        request_token = WardenOauthProvider::RequestToken.create(:client_application => client_application, :callback_url => oauth_request.oauth_callback)
+        request_token = WardenOauthProvider::Token::Request.create(:client_application => client_application, :callback_url => oauth_request.oauth_callback)
         custom! [200, {}, ["oauth_token=#{escape(request_token.token)}&oauth_token_secret=#{escape(request_token.secret)}&oauth_callback_confirmed=true"]]
       when warden.config.oauth_access_token_path
         
@@ -35,7 +33,7 @@ module WardenOauthProvider
       else
         
         # Validate the current token as an access token and allow access to the resources
-        if current_token and current_token.is_a?(WardenOauthProvider::AccessToken)
+        if current_token and current_token.is_a?(WardenOauthProvider::Token::Access)
           success!(current_token.user)
         else
           fail!("Invalid access token")

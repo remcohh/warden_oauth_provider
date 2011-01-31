@@ -17,7 +17,6 @@ RSpec.configure do |config|
   config.include(RequestHelper)
 end
 
-ENV['RAILS_ENV'] = 'test'
 ActiveRecord::Base.establish_connection(:adapter => 'sqlite3', :database => ':memory:')
 ActiveRecord::Migration.verbose = false
 ActiveRecord::Base.logger = Logger.new("test.log")

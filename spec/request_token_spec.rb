@@ -40,7 +40,7 @@ describe "Request token" do
     end
     
     it "should have created a new request token in the database" do
-      WardenOauthProvider::RequestToken.where(:token => @oauth_response["oauth_token"], :secret => @oauth_response["oauth_token_secret"]).count.should == 1
+      WardenOauthProvider::Token::Request.where(:token => @oauth_response["oauth_token"], :secret => @oauth_response["oauth_token_secret"]).count.should == 1
     end
     
   end

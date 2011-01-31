@@ -38,7 +38,7 @@ describe "Access token" do
     end
     
     it "should have stored an access token with the token and secret" do
-      WardenOauthProvider::AccessToken.where(:token => @oauth_response["oauth_token"], :secret => @oauth_response["oauth_token_secret"]).count.should == 1
+      WardenOauthProvider::Token::Access.where(:token => @oauth_response["oauth_token"], :secret => @oauth_response["oauth_token_secret"]).count.should == 1
     end
 
   end
