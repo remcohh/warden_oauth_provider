@@ -13,6 +13,8 @@ module RequestHelper
   def setup_rack(app = nil, opts = {})
     app ||= default_app
     
+    # Strategy used for authenticating the user to the app without oauth
+    # Required for authorize call to the app
     Warden::Strategies.add(:success) do
       def authenticate!
         success!("edwin")
@@ -21,6 +23,8 @@ module RequestHelper
     
     opts[:failure_app]         ||= failure_app
     opts[:default_strategies]  ||= [:oauth, :success]
+    opts[:oauth_request_token_path] ||= "/oauth/request_token"
+    opts[:oauth_access_token_path] ||= "/oauth/access_token"
     
     Rack::Builder.new do
       use RequestHelper::Session
