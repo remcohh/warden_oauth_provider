@@ -1,31 +1,45 @@
 require 'oauth/request_proxy/rack_request'
 require 'oauth/signature/plaintext'
 require 'warden_oauth_provider/client_application'
+require 'warden_oauth_provider/request_token'
 
 module WardenOauthProvider
   
   class Strategy < Warden::Strategies::Base
+    
+    include OAuth::Helper
     
     def valid?
       http_authorization? and http_authorization =~ /^OAuth/
     end
     
     def authenticate!
-      @rack_request = Rack::Request.new(env)
-      
-      if @rack_request.path =~ /^\/oauth\/request_token/
-        @signature = OAuth::Signature.build(@rack_request) do |request_proxy|
-          client_application = WardenOauthProvider::ClientApplication.find_by_key(request_proxy.consumer_key)
-          client_application.token_callback_url = request_proxy.oauth_callback if request_proxy.oauth_callback
-          env['oauth.client_application'] = client_application
-          [nil, client_application.secret]
-        end
-        
-        custom! [200, {}, "oauth_token=hh5s93j4hdidpola&oauth_token_secret=hdhd0244k9j7ao03&oauth_callback_confirmed=true"]
+      if request_token_path?
+        request_token_response
       end
     end
     
   private
+  
+    def request
+      @request ||= Rack::Request.new(env)
+    end
+  
+    def request_token_path?
+      @request.path =~  /^\/oauth\/request_token/
+    end
+  
+    def request_token_response
+      @signature = OAuth::Signature.build(request) do |request_proxy|
+        client_application = WardenOauthProvider::ClientApplication.find_by_key(request_proxy.consumer_key)
+        client_application.token_callback_url = request_proxy.oauth_callback if request_proxy.oauth_callback
+        env['oauth.client_application'] = client_application
+        [nil, client_application.secret]
+      end
+      
+      request_token = WardenOauthProvider::RequestToken.create(:client_application => env['oauth.client_application'], :callback_url => env['oauth.client_application'].token_callback_url)
+      custom! [200, {}, ["oauth_token=#{escape(request_token.token)}&oauth_token_secret=#{escape(request_token.secret)}&oauth_callback_confirmed=true"]]
+    end
   
     def http_authorization
       request.env['HTTP_AUTHORIZATION']   ||
