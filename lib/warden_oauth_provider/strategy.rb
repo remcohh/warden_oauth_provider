@@ -32,13 +32,21 @@ module WardenOauthProvider
     def request_token_response
       @signature = OAuth::Signature.build(request) do |request_proxy|
         client_application = WardenOauthProvider::ClientApplication.find_by_key(request_proxy.consumer_key)
-        client_application.token_callback_url = request_proxy.oauth_callback if request_proxy.oauth_callback
-        env['oauth.client_application'] = client_application
-        [nil, client_application.secret]
+        if client_application
+          client_application.token_callback_url = request_proxy.oauth_callback if request_proxy.oauth_callback
+          env['oauth.client_application'] = client_application
+          [nil, client_application.secret]
+        else
+          [nil, nil]
+        end
       end
       
-      request_token = WardenOauthProvider::RequestToken.create(:client_application => env['oauth.client_application'], :callback_url => env['oauth.client_application'].token_callback_url)
-      custom! [200, {}, ["oauth_token=#{escape(request_token.token)}&oauth_token_secret=#{escape(request_token.secret)}&oauth_callback_confirmed=true"]]
+      if env['oauth.client_application']
+        request_token = WardenOauthProvider::RequestToken.create(:client_application => env['oauth.client_application'], :callback_url => env['oauth.client_application'].token_callback_url)
+        custom! [200, {}, ["oauth_token=#{escape(request_token.token)}&oauth_token_secret=#{escape(request_token.secret)}&oauth_callback_confirmed=true"]]
+      else
+        fail!("Unknown client application")
+      end
     end
   
     def http_authorization

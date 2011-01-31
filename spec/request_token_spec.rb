@@ -13,7 +13,6 @@ describe "Request token" do
         "HTTP_AUTHORIZATION" => auth_str
       })
       @response = setup_rack.call(env)
-      puts @response.inspect
       @oauth_response = Hash[*@response.last.first.split("&").collect { |v| v.split("=") }.flatten]
     end
     
@@ -40,7 +39,13 @@ describe "Request token" do
   
   context "Failure" do
     it "should response with a 401 if consumer key or signature are invalid" do
+      auth_str = sprintf('OAuth realm="MoneyBird", oauth_consumer_key="%s", oauth_signature_method="PLAINTEXT", oauth_timestamp="%d", oauth_nonce="%f", oauth_callback="oob", oauth_signature="%s"', "1234", Time.now.to_i, Time.now.to_f, "abcd")
       
+      env = env_with_params("/oauth/request_token", {}, {
+        "HTTP_AUTHORIZATION" => auth_str
+      })
+      @response = setup_rack.call(env)
+      @response.first.should == 401
     end
   end
   
