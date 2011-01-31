@@ -1,5 +1,6 @@
 require 'warden'
+require 'oauth'
+require 'active_record'
+require 'warden_oauth_provider/strategy'
 
-module WardenOauthProvider
-  # Your code goes here...
-end
+Warden::Strategies.add(:oauth, WardenOauthProvider::Strategy)
