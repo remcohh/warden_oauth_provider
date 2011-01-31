@@ -4,6 +4,7 @@ require 'oauth/signature/plaintext'
 require 'warden_oauth_provider/client_application'
 require 'warden_oauth_provider/request_token'
 require 'warden_oauth_provider/access_token'
+require 'warden_oauth_provider/oauth_nonce'
 
 module WardenOauthProvider
   
@@ -69,7 +70,7 @@ module WardenOauthProvider
     end
     
     def verify_request
-      signature && signature.verify # && Nonce.check!!
+      signature && signature.verify && WardenOauthProvider::OauthNonce.remember(signature.request.nonce, signature.request.timestamp)
     end
     
     def current_token

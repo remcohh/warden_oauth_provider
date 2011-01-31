@@ -34,6 +34,7 @@ ActiveRecord::Schema.define do
 
     t.timestamps
   end
+  add_index :client_applications, :key, :unique => true
   
   create_table :oauth_tokens, :force => true do |t|
     t.integer :user_id
@@ -47,6 +48,15 @@ ActiveRecord::Schema.define do
     t.timestamp :authorized_at, :invalidated_at, :valid_to
     t.timestamps
   end
+  add_index :oauth_tokens, :token, :unique => true
+  
+  create_table :oauth_nonces do |t|
+    t.string :nonce
+    t.integer :timestamp
+
+    t.timestamps
+  end
+  add_index :oauth_nonces,[:nonce, :timestamp], :unique
   
   create_table :users, :force => true do |t|
     t.string :name
