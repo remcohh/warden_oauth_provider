@@ -4,3 +4,13 @@ Factory.define(:client_application, :class => WardenOauthProvider::ClientApplica
   f.support_url     "http://www.example.com/support"
   f.callback_url    "http://www.example.com/callback"
 end
+
+Factory.define(:request_token, :class => WardenOauthProvider::RequestToken) do |f|
+end
+
+Factory.define(:access_token, :class => WardenOauthProvider::AccessToken) do |f|
+end
+
+Factory.define(:user) do |f|
+  f.name "Edwin"
+end

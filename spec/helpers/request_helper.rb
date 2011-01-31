@@ -6,10 +6,21 @@ module RequestHelper
     Rack::MockRequest.env_for("#{path}?#{Rack::Utils.build_query(params)}", env)
   end
   
+  def oauth_header(params)
+    "OAuth #{params.collect { |k,v| "#{k}=\"#{v}\""}.join(", ") }"
+  end
+  
   def setup_rack(app = nil, opts = {})
     app ||= default_app
+    
+    Warden::Strategies.add(:success) do
+      def authenticate!
+        success!("edwin")
+      end
+    end
+    
     opts[:failure_app]         ||= failure_app
-    opts[:default_strategies]  ||= [:oauth]
+    opts[:default_strategies]  ||= [:oauth, :success]
     
     Rack::Builder.new do
       use RequestHelper::Session
@@ -21,7 +32,16 @@ module RequestHelper
   def default_app
     lambda do |env|
       env['warden'].authenticate!
-      [200, {"Content-Type" => "text/plain"}, ["Very secret resource!"]]
+      request = Rack::Request.new(env)
+      if request.path =~ /^\/oauth\/authorize/
+        if env['warden'].authenticate?(:oauth_token, :scope => :oauth_token)
+          [302, {"Location" => env['oauth.redirect_url']}, []]
+        else
+          [200, {"Content-Type" => "text/plain"}, ["You have not authorized"]]
+        end
+      else
+        [200, {"Content-Type" => "text/plain"}, ["Very secret resource!"]]
+      end
     end
   end
   

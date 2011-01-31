@@ -1,15 +1,18 @@
 require 'rubygems'
 require 'bundler/setup'
 require 'rspec'
+require 'rspec/mocks'
 require 'warden_oauth_provider'
 require 'rack'
 require 'sqlite3'
 require 'factory_girl'
-require 'factories'
 
-require 'request_helper'
+require 'helpers/factories'
+require 'helpers/request_helper'
 
 RSpec.configure do |config|
+  config.mock_with :rspec
+  
   config.include(RequestHelper)
 end
 
@@ -42,4 +45,11 @@ ActiveRecord::Schema.define do
     t.timestamp :authorized_at, :invalidated_at, :valid_to
     t.timestamps
   end
+  
+  create_table :users, :force => true do |t|
+    t.string :name
+  end
+end
+
+class User < ActiveRecord::Base
 end
