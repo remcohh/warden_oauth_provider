@@ -41,7 +41,7 @@ module RequestHelper
         if env['warden'].authenticate?(:oauth_token, :scope => :oauth_token)
           [302, {"Location" => env['oauth.redirect_url']}, []]
         else
-          [200, {"Content-Type" => "text/plain"}, ["You have not authorized"]]
+          [401, {"Content-Type" => "text/plain"}, ["Token invalid"]]
         end
       else
         [200, {"Content-Type" => "text/plain"}, ["Very secret resource!"]]

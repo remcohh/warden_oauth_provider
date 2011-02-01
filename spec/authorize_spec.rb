@@ -10,6 +10,7 @@ describe "Authorize" do
       @response = setup_rack.call(env)
       @location = URI.parse(@response[1]["Location"])
       @oauth_response = Hash[*@location.query.split("&").collect { |v| v.split("=") }.flatten]
+      @response.first.should == 302
     end
     
     it "should have an oauth token" do
@@ -35,6 +36,7 @@ describe "Authorize" do
       
       env = env_with_params("/oauth/authorize", {:oauth_token => @request_token.token}, {})
       @response = setup_rack.call(env)
+      @response.first.should == 401
     end
   end
   
