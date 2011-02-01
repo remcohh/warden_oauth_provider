@@ -54,29 +54,23 @@ module WardenOauthProvider
     # Find the signature for the current request and match it with the information in the database.
     # Also adds the current client application and token to the environment
     def signature
-      @signature ||= OAuth::Signature.build(request) do |request_proxy|
-        env['oauth.client_application'] = WardenOauthProvider::ClientApplication.find_by_key(request_proxy.consumer_key)
-        return nil unless env['oauth.client_application']
-        
-        if request_proxy.token
-          env['oauth.token'] = env['oauth.client_application'].tokens.validated.find_by_token(request_proxy.token)
-          secret = env['oauth.token'].secret if env['oauth.token']
-        end
-        
-        [secret, env['oauth.client_application'].secret]
-      end
+      @signature ||= OAuth::Signature.build(oauth_request, :consumer => client_application, :token => current_token)
     end
     
+    # Verify the request by checking the nonce and the signature
     def verify_request
-      signature && signature.verify && WardenOauthProvider::OauthNonce.remember(signature.request.nonce, signature.request.timestamp)
+      WardenOauthProvider::OauthNonce.remember(oauth_request.nonce, oauth_request.timestamp) && signature && signature.verify
     end
     
+    # Returns the current token in the database, based on the token provided in the request
     def current_token
-      env['oauth.token']
+      return nil if oauth_request.token.nil? or client_application.nil?
+      env['oauth.token'] ||= client_application.tokens.validated.find_by_token(oauth_request.token)
     end
     
+    # Returns the current client application, based on the consumer key in the request
     def client_application
-      env['oauth.client_application']
+      env['oauth.client_application'] ||= WardenOauthProvider::ClientApplication.find_by_key(oauth_request.consumer_key)
     end
     
     def warden
