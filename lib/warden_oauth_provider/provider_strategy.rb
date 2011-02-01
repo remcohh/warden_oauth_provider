@@ -13,14 +13,14 @@ module WardenOauthProvider
       http_authorization? and http_authorization =~ /^OAuth/
     end
     
-    def authenticate!      
+    def authenticate!
       fail!("Invalid signature or nonce") and return if !verify_request
 
       case request.path
       when warden.config.oauth_request_token_path
         
         # Return a request token for the client application
-        request_token = WardenOauthProvider::Token::Request.create(:client_application => client_application, :callback_url => oauth_request.oauth_callback)
+        request_token = WardenOauthProvider::Token::Request.create!(:client_application => client_application, :callback_url => oauth_request.oauth_callback)
         custom! [200, {}, ["oauth_token=#{escape(request_token.token)}&oauth_token_secret=#{escape(request_token.secret)}&oauth_callback_confirmed=true"]]
       when warden.config.oauth_access_token_path
         

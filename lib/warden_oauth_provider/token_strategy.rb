@@ -8,7 +8,8 @@ module WardenOauthProvider
     def authenticate!
       request_token = WardenOauthProvider::Token::Request.find_by_token(request.params["oauth_token"])
       
-      if request_token.invalidated?
+      
+      if !request_token or request_token.invalidated?
         fail!
       else
         request_token.authorize!(user)
