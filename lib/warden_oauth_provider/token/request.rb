@@ -15,7 +15,7 @@ module WardenOauthProvider
         return false if self.verifier != verifier
 
         self::class.transaction do
-          access_token = WardenOauthProvider::Token::Access.create(:user => user, :client_application => client_application)
+          access_token = WardenOauthProvider::Token::Access.create!(:user => user, :client_application => client_application)
           invalidate!
           access_token
         end
