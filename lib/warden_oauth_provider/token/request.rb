@@ -3,7 +3,7 @@ module WardenOauthProvider
     class Request < Base
 
       def authorize!(user)
-        return false if authorized?
+        return false if authorized? or user.nil?
         self.user          = user
         self.authorized_at = Time.now
         self.verifier      = OAuth::Helper.generate_key(20)[0,20]
@@ -13,7 +13,6 @@ module WardenOauthProvider
       def exchange!(verifier)
         return false unless authorized?
         return false if self.verifier != verifier
-
         self::class.transaction do
           access_token = WardenOauthProvider::Token::Access.create!(:user => user, :client_application => client_application)
           invalidate!
