@@ -23,7 +23,7 @@ module WardenOauthProvider
         request_token = WardenOauthProvider::Token::Request.create!(:client_application => client_application, :callback_url => oauth_request.oauth_callback)
         custom! [200, {}, ["oauth_token=#{escape(request_token.token)}&oauth_token_secret=#{escape(request_token.secret)}&oauth_callback_confirmed=true"]]
       when warden.config.oauth_access_token_path
-        
+
         # Exchange the access token and return it
         if access_token = (current_token && current_token.exchange!(oauth_request.oauth_verifier))
           custom! [200, {}, ["oauth_token=#{escape(access_token.token)}&oauth_token_secret=#{escape(access_token.secret)}"]]
