@@ -1,5 +1,5 @@
 module WardenOauthProvider
-  class OauthNonce < ActiveRecord::Base
+  class Nonce < ActiveRecord::Base
     set_table_name "oauth_nonces"
     
     validates_presence_of :nonce, :timestamp
@@ -7,7 +7,7 @@ module WardenOauthProvider
   
     # Remembers a nonce and it's associated timestamp. It returns false if it has already been used
     def self.remember(nonce, timestamp)
-      OauthNonce.create!(:nonce => nonce, :timestamp => timestamp)
+      Nonce.create!(:nonce => nonce, :timestamp => timestamp)
     rescue ActiveRecord::RecordInvalid
       false
     end

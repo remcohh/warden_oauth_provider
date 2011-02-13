@@ -59,7 +59,7 @@ module WardenOauthProvider
     
     # Verify the request by checking the nonce and the signature
     def verify_request
-      WardenOauthProvider::OauthNonce.remember(oauth_request.nonce, oauth_request.timestamp) && signature && signature.verify
+      WardenOauthProvider::Nonce.remember(oauth_request.nonce, oauth_request.timestamp) && signature && signature.verify
     end
     
     # Returns the current token in the database, based on the token provided in the request
