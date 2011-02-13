@@ -17,7 +17,7 @@ module RequestHelper
     # Required for authorize call to the app
     Warden::Strategies.add(:success) do
       def authenticate!
-        success!("edwin")
+        success!(User.last)
       end
     end
     
