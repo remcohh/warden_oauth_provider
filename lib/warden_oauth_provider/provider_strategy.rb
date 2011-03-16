@@ -10,7 +10,9 @@ module WardenOauthProvider
     include OAuth::Helper
     
     def valid?
-      http_authorization? and http_authorization =~ /^OAuth/
+      request.path == warden.config.oauth_request_token_path or
+      request.path == warden.config.oauth_access_token_path or
+      (http_authorization? and http_authorization =~ /^OAuth/)
     end
     
     def authenticate!
