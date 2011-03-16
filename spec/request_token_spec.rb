@@ -45,7 +45,7 @@ describe "Request token" do
     
   end
   
-  context "Success with GET", :wip => true do
+  context "Success with GET" do
     before(:all) do
       @client_application = Factory.create(:client_application)
       

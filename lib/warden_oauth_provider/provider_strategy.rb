@@ -10,9 +10,7 @@ module WardenOauthProvider
     include OAuth::Helper
     
     def valid?
-      request.path == warden.config.oauth_request_token_path or
-      request.path == warden.config.oauth_access_token_path or
-      (http_authorization? and http_authorization =~ /^OAuth/)
+      oauth_request.oauth_parameters.length > 1
     end
     
     def authenticate!
@@ -78,14 +76,6 @@ module WardenOauthProvider
     def warden
       env['warden']
     end
-    
-    def http_authorization
-      request.env['HTTP_AUTHORIZATION']   ||
-      request.env['X-HTTP_AUTHORIZATION'] ||
-      request.env['X_HTTP_AUTHORIZATION'] ||
-      request.env['REDIRECT_X_HTTP_AUTHORIZATION']
-    end
-    alias :http_authorization? :http_authorization
     
   end
   

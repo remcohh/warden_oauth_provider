@@ -8,12 +8,10 @@ module WardenOauthProvider
     def authenticate!
       request_token = WardenOauthProvider::Token::Request.find_by_token(request.params["oauth_token"])
       
-      
       if !request_token or request_token.invalidated?
         fail!
       else
-        if request_token.authorize!(env['warden'].user)
-        
+        if request_token.authorize!(env['warden'].user)  
           redirect_url = URI.parse(request_token.oob? ? request_token.client_application.callback_url : request_token.callback_url)
           redirect_url.query ||= ""
           redirect_url.query += "&" unless redirect_url.query.blank?
