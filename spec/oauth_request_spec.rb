@@ -30,6 +30,32 @@ describe "OAuth request" do
     
   end
   
+  context "Success (GET)" do
+
+    before(:all) do
+      @user = Factory(:user)
+      @client_application = Factory.create(:client_application)
+      @access_token = Factory.create(:access_token, :user => @user, :client_application => @client_application)
+    end
+
+    it "should allow to access very secret resources" do
+      auth_params = {
+        :realm => "MoneyBird",
+        :oauth_consumer_key => @client_application.key,
+        :oauth_token => @access_token.token,
+        :oauth_signature_method => "PLAINTEXT",
+        :oauth_timestamp => Time.now.to_i,
+        :oauth_nonce => Time.now.to_f,
+        :oauth_signature => @client_application.secret + "&" + @access_token.secret
+      }
+      
+      env = env_with_params("/invoices", auth_params)
+      @response = setup_rack.call(env)
+      @response.first.should == 200
+    end
+    
+  end
+  
   context "Failure" do
     
     before(:all) do
