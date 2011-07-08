@@ -1,0 +1,158 @@
+require 'spec_helper'
+
+describe WardenOauthProvider::TokenStrategy do
+
+  before(:all) do
+    @client_application = Factory.create(:client_application)
+    @user = Factory(:user)
+  end
+
+  it "should allow to authenticate a token multiple times in a session" do
+    
+    class TestSession
+      cattr_accessor :session
+      def initialize(app)
+        @app = app
+      end
+      
+      def call(env)
+        env['rack.session'] = TestSession.session
+        @app.call(env)
+      end
+    end
+    TestSession.session = {}
+    
+    session = TestSession
+
+
+    # Step 1 - Request token
+    auth_str_step1 = oauth_header({
+      :realm                  => "MoneyBird",
+      :oauth_consumer_key     => @client_application.key,
+      :oauth_signature_method => "PLAINTEXT",
+      :oauth_timestamp        => Time.now.to_i+1,
+      :oauth_nonce            => Time.now.to_f+1,
+      :oauth_callback         => "oob",
+      :oauth_signature        => @client_application.secret + "%26"
+    })
+    env_step1 = env_with_params("/oauth/request_token", {}, {
+      "HTTP_AUTHORIZATION" => auth_str_step1
+    })
+    response = setup_rack.call(env_step1)
+    response.first.should == 200
+    oauth_response = Hash[*response.last.first.split("&").collect { |v| v.split("=") }.flatten]
+    oauth_request_token = oauth_response["oauth_token"]
+    oauth_request_token_secret = oauth_response["oauth_token_secret"]
+    
+    # Step 2 - Authorize
+    req = WardenOauthProvider::Token::Request.find_by_token(oauth_request_token)
+    env_step2 = env_with_params("/oauth/authorize", {:oauth_token => oauth_request_token, :username => "Edwin"}, {})
+    response = setup_rack(nil, :session => session).call(env_step2)
+    response.first.should == 302
+    location = URI.parse(response[1]["Location"])
+    oauth_response = Hash[*location.query.split("&").collect { |v| v.split("=") }.flatten]
+    oauth_verifier = oauth_response["oauth_verifier"]
+    
+    # Step 3 - Access token
+    auth_str_step3 = oauth_header({
+      :realm => "MoneyBird",
+      :oauth_consumer_key => @client_application.key,
+      :oauth_token => oauth_request_token,
+      :oauth_signature_method => "PLAINTEXT",
+      :oauth_timestamp => Time.now.to_i+2,
+      :oauth_nonce => Time.now.to_f+2,
+      :oauth_verifier => oauth_verifier,
+      :oauth_signature => @client_application.secret + "%26" + oauth_request_token_secret
+    })
+    env_step3 = env_with_params("/oauth/access_token", {}, {
+      "HTTP_AUTHORIZATION" => auth_str_step3
+    })
+    response = setup_rack.call(env_step3)
+    response.first.should == 200
+    oauth_response = Hash[*response.last.first.split("&").collect { |v| v.split("=") }.flatten]
+    oauth_access_token = oauth_response["oauth_token"]
+    oauth_access_token_secret = oauth_response["oauth_token_secret"]
+    
+    # Step 4 - App request with access token
+    auth_str_step4 = oauth_header({
+      :realm => "MoneyBird",
+      :oauth_consumer_key => @client_application.key,
+      :oauth_token => oauth_access_token,
+      :oauth_signature_method => "PLAINTEXT",
+      :oauth_timestamp => Time.now.to_i+3,
+      :oauth_nonce => Time.now.to_f+3,
+      :oauth_signature => @client_application.secret + "%26" + oauth_access_token_secret
+    })
+    env_step4 = env_with_params("/invoices", {}, {
+      "HTTP_AUTHORIZATION" => auth_str_step4
+    })
+    response = setup_rack.call(env_step4)
+    response.first.should == 200
+    
+    # Step 1 - Request token
+    auth_str_step1 = oauth_header({
+      :realm                  => "MoneyBird",
+      :oauth_consumer_key     => @client_application.key,
+      :oauth_signature_method => "PLAINTEXT",
+      :oauth_timestamp        => Time.now.to_i+1,
+      :oauth_nonce            => Time.now.to_f+1,
+      :oauth_callback         => "oob",
+      :oauth_signature        => @client_application.secret + "%26"
+    })
+    env_step1 = env_with_params("/oauth/request_token", {}, {
+      "HTTP_AUTHORIZATION" => auth_str_step1
+    })
+    response = setup_rack.call(env_step1)
+    response.first.should == 200
+    oauth_response = Hash[*response.last.first.split("&").collect { |v| v.split("=") }.flatten]
+    oauth_request_token = oauth_response["oauth_token"]
+    oauth_request_token_secret = oauth_response["oauth_token_secret"]
+    
+    # Step 2 - Authorize
+    req = WardenOauthProvider::Token::Request.find_by_token(oauth_request_token)
+    env_step2 = env_with_params("/oauth/authorize", {:oauth_token => oauth_request_token, :username => "Edwin"}, {})
+    response = setup_rack(nil, :session => session).call(env_step2)
+    response.first.should == 302
+    location = URI.parse(response[1]["Location"])
+    oauth_response = Hash[*location.query.split("&").collect { |v| v.split("=") }.flatten]
+    oauth_verifier = oauth_response["oauth_verifier"]
+    
+    # Step 3 - Access token
+    auth_str_step3 = oauth_header({
+      :realm => "MoneyBird",
+      :oauth_consumer_key => @client_application.key,
+      :oauth_token => oauth_request_token,
+      :oauth_signature_method => "PLAINTEXT",
+      :oauth_timestamp => Time.now.to_i+2,
+      :oauth_nonce => Time.now.to_f+2,
+      :oauth_verifier => oauth_verifier,
+      :oauth_signature => @client_application.secret + "%26" + oauth_request_token_secret
+    })
+    env_step3 = env_with_params("/oauth/access_token", {}, {
+      "HTTP_AUTHORIZATION" => auth_str_step3
+    })
+    response = setup_rack.call(env_step3)
+    response.first.should == 200
+    oauth_response = Hash[*response.last.first.split("&").collect { |v| v.split("=") }.flatten]
+    oauth_access_token = oauth_response["oauth_token"]
+    oauth_access_token_secret = oauth_response["oauth_token_secret"]
+    
+    # Step 4 - App request with access token
+    auth_str_step4 = oauth_header({
+      :realm => "MoneyBird",
+      :oauth_consumer_key => @client_application.key,
+      :oauth_token => oauth_access_token,
+      :oauth_signature_method => "PLAINTEXT",
+      :oauth_timestamp => Time.now.to_i+3,
+      :oauth_nonce => Time.now.to_f+3,
+      :oauth_signature => @client_application.secret + "%26" + oauth_access_token_secret
+    })
+    env_step4 = env_with_params("/invoices", {}, {
+      "HTTP_AUTHORIZATION" => auth_str_step4
+    })
+    response = setup_rack.call(env_step4)
+    response.first.should == 200
+    
+  end
+
+end

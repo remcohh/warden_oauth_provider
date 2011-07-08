@@ -1,5 +1,13 @@
 module RequestHelper
   
+  Warden::Manager.serialize_into_session do |user|
+    user.id
+  end
+
+  Warden::Manager.serialize_from_session do |id|
+    User.find(id)
+  end
+  
   def env_with_params(path, params = {}, env = {})
     method = params.delete(:method) || "GET"
     env = { 'HTTP_VERSION' => '1.1', 'REQUEST_METHOD' => "#{method}" }.merge(env)
@@ -16,8 +24,16 @@ module RequestHelper
     # Strategy used for authenticating the user to the app without oauth
     # Required for authorize call to the app
     Warden::Strategies.add(:success) do
+      def valid?
+        !params["username"].nil?
+      end
+      
       def authenticate!
-        success!(User.last)
+        if u = User.where(:name => params["username"]).first
+          success!(u)
+        else
+          fail!("User unknown")
+        end
       end
     end
     
@@ -27,10 +43,10 @@ module RequestHelper
     opts[:oauth_access_token_path] ||= "/oauth/access_token"
     
     Rack::Builder.new do
-      use RequestHelper::Session
+      use opts[:session] || RequestHelper::Session
       use Warden::Manager, opts
       run app
-    end    
+    end
   end
   
   def default_app
