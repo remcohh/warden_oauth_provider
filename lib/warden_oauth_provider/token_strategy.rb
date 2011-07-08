@@ -18,7 +18,7 @@ module WardenOauthProvider
           redirect_url.query += "oauth_token=#{request_token.token}&oauth_verifier=#{request_token.verifier}"
           env['oauth.redirect_url'] = redirect_url.to_s
         
-          success!("Edwin")
+          success!(env['warden'].user)
         else
           fail!("Token authorization failed!")
         end
