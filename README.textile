@@ -1,0 +1,35 @@
+h1. WardenOauthProvider
+
+This gem allows you to start an oauth server and allow your customers to consume your application through oauth. It is based on Warden and can easily be added to the Warden authentication stack.
+
+h2. Installation
+
+# Add this gem to your Gemfile
+  <pre>gem 'warden_oauth_provider'</pre>
+# Run the generator to create a migration for the required database tables
+  <pre>$ rails generate warden_oauth_provider
+$ rake db:migrate</pre>
+# Make sure you have installed the Warden gem for your authentication
+# Add the @:oauth_provider@ strategy to your Warden middleware and define the oauth paths
+  <pre>YourApp::Application.config.middleware.use Warden::Manager do |manager|
+    manager.default_strategies :oauth_provider, :http_basic, :password
+    manager.failure_app              = SessionsController
+    manager.oauth_request_token_path = "/oauth/request_token"
+    manager.oauth_access_token_path  = "/oauth/access_token"
+  end</pre>
+
+At this point your application responds on the @/oauth/request_token@ and @/oauth/access_token@ paths and provides request and access tokens based on the request. Before you can make any requests, you should create a client application.
+
+h2. Creating client applications
+
+Before a client can connect to the oauth provider, it should be registered as a client application in the database. This can be done through a Rails console or you can create a dedicated controller for this purpose:
+
+<pre>WardenOauthProvider::ClientApplication.create!(:name => "My client application", :url => "http://myapplication.com", :callback_url => "http://myapplication.com/callback")</pre>
+
+The @:callback_url@ is an optional argument, because the callback url can also be provided when requesting a request token. The @key@ and @secret@ attributes are automatically filled and are the consumer key and consumer secret that should be used to connect to the oauth server.
+
+h2. Creating the authorize interface
+
+During the oauth process, the end-user is redirected to your application to authorize the oauth request. The controller, views and routes for this can be generated with the @warden_oauth_provider:controller@ generator
+
+<pre>rails generate warden_oauth_provider:controller</pre>
