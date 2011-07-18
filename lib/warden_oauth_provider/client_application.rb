@@ -1,7 +1,7 @@
 module WardenOauthProvider
   class ClientApplication < ActiveRecord::Base
 
-    has_many :tokens, :class_name => "WardenOauthProvider::Token::Base"
+    has_many :tokens, :class_name => "WardenOauthProvider::Token::Base", :dependent => :destroy
     has_many :access_tokens
     has_many :oauth_tokens
     
