@@ -24,7 +24,8 @@ module WardenOauthProvider
         end
       end
     end
-    
+
+    # This is just a single check for the token, don't store any result in the session
     def store?
       false
     end

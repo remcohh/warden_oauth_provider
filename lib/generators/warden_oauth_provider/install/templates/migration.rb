@@ -24,7 +24,7 @@ class CreateOauthTables < ActiveRecord::Migration
       t.timestamp :authorized_at, :invalidated_at
       t.timestamps
     end
-    add_index :oauth_tokens, :token, :unique
+    add_index :oauth_tokens, :token, :unique => true
     
     create_table :oauth_nonces do |t|
       t.string :nonce

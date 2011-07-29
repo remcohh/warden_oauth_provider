@@ -12,5 +12,5 @@ Factory.define(:access_token, :class => WardenOauthProvider::Token::Access) do |
 end
 
 Factory.define(:user) do |f|
-  f.name "Edwin"
+  f.name "John"
 end

@@ -1,6 +1,6 @@
 h1. WardenOauthProvider
 
-This gem allows you to start an oauth server and allow your customers to consume your application through oauth. It is based on Warden and can easily be added to the Warden authentication stack.
+This gem allows you to start an oauth server and allow your customers to consume your application through oauth. It is based on Warden and can easily be added to the Warden authentication stack. It uses the "oauth gem":http://rubygems.org/gems/oauth to implement the oauth protocol for Warden.
 
 h2. Installation
 
@@ -20,7 +20,7 @@ $ rake db:migrate</pre>
 
 At this point your application responds on the @/oauth/request_token@ and @/oauth/access_token@ paths and provides request and access tokens based on the request. Before you can make any requests, you should create a client application.
 
-h2. Creating client applications
+h3. Creating client applications
 
 Before a client can connect to the oauth provider, it should be registered as a client application in the database. This can be done through a Rails console or you can create a dedicated controller for this purpose:
 
@@ -28,8 +28,31 @@ Before a client can connect to the oauth provider, it should be registered as a 
 
 The @:callback_url@ is an optional argument, because the callback url can also be provided when requesting a request token. The @key@ and @secret@ attributes are automatically filled and are the consumer key and consumer secret that should be used to connect to the oauth server.
 
-h2. Creating the authorize interface
+h3. Creating the authorize interface
 
-During the oauth process, the end-user is redirected to your application to authorize the oauth request. The controller, views and routes for this can be generated with the @warden_oauth_provider:controller@ generator
+During the oauth process, the end-user is redirected to your application to authorize the oauth request. You should write create controller, views and routes for this. You use the @WardenOauthProvider::TokenStrategy@ to verify and authorize the token:
 
-<pre>rails generate warden_oauth_provider:controller</pre>
+<pre>def authorize
+  @token = WardenOauthProvider::Token::Request.find_by_token(params[:oauth_token])
+  if request.post? 
+    if params[:authorize] == "1"  # Something based on your user interface
+      if warden.authenticate?(:oauth_token, :scope => :oauth_token)
+        redirect_to env['oauth.redirect_url']
+      else
+        # Render a template to display failure
+        render :authorize_failure 
+      end
+    else
+      # Render a template to display failure
+      render :authorize_failure
+    end
+  end
+end</pre>
+
+h2. Reporting bugs
+
+Please report bugs in this gem on the Github page.
+
+h2. License
+
+This code is free to use under the terms of the MIT license and stated in the LICENSE file.
