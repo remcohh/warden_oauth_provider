@@ -51,7 +51,7 @@ end</pre>
 
 h2. Reporting bugs
 
-Please report bugs in this gem on the Github page.
+Please report bugs in this gem via Github Issues: https://github.com/bluetools/warden_oauth_provider/issues
 
 h2. License
 
