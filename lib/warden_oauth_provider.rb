@@ -14,6 +14,6 @@ Warden::Strategies.add(:oauth_token, WardenOauthProvider::TokenStrategy)
 
 module Warden
   class Config
-    hash_accessor :oauth_request_token_path, :oauth_access_token_path
+    hash_accessor :oauth_request_token_path, :oauth_access_token_path, :xauth_user
   end
 end

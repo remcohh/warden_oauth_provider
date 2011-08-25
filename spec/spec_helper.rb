@@ -30,6 +30,7 @@ ActiveRecord::Schema.define do
     t.string :key, :limit => 40
     t.string :secret, :limit => 40
     t.integer :user_id
+    t.boolean :xauth_enabled, :default => false
 
     t.timestamps
   end
@@ -59,6 +60,7 @@ ActiveRecord::Schema.define do
   
   create_table :users, :force => true do |t|
     t.string :name
+    t.string :password
   end
 end
 

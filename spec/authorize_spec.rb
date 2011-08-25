@@ -6,7 +6,7 @@ describe "Authorize" do
     
     before(:all) do
       @request_token = Factory.create(:request_token, :client_application => Factory.create(:client_application))
-      env = env_with_params("/oauth/authorize", {:oauth_token => @request_token.token, :username => "John"}, {})
+      env = env_with_params("/oauth/authorize", {:oauth_token => @request_token.token, :username => "John", :password => "testtest"}, {})
       @response = setup_rack.call(env)
       @location = URI.parse(@response[1]["Location"])
       @oauth_response = Hash[*@location.query.split("&").collect { |v| v.split("=") }.flatten]
@@ -34,7 +34,7 @@ describe "Authorize" do
       @request_token = Factory.create(:request_token, :client_application => Factory.create(:client_application))
       @request_token.invalidate!
       
-      env = env_with_params("/oauth/authorize", {:oauth_token => @request_token.token}, {})
+      env = env_with_params("/oauth/authorize", {:oauth_token => @request_token.token, :username => "John", :password => "testtest"}, {})
       @response = setup_rack.call(env)
       @response.first.should == 401
     end

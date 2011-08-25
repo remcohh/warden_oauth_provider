@@ -13,4 +13,5 @@ end
 
 Factory.define(:user) do |f|
   f.name "John"
+  f.password "testtest"
 end

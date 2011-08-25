@@ -23,12 +23,30 @@ module WardenOauthProvider
         request_token = WardenOauthProvider::Token::Request.create!(:client_application => client_application, :callback_url => oauth_request.oauth_callback)
         custom! [200, {}, ["oauth_token=#{escape(request_token.token)}&oauth_token_secret=#{escape(request_token.secret)}&oauth_callback_confirmed=true"]]
       when warden.config.oauth_access_token_path
+        
+        if xauth_params? and xauth_mode == 'client_auth'
+          
+          # Get the user authentication proc from the settings
+          user_authentication = warden.config.xauth_user || Proc.new { |env, username, password| nil }
+          
+          # Create an access token when the client application has xauth enabled and the user can be authenticated
+          if client_application.xauth_enabled? and (user = user_authentication.call(env, xauth_username, xauth_password))
+            access_token = WardenOauthProvider::Token::Access.create!(:client_application => client_application, :user => user)
+          elsif user.nil?
+            fail!("Authentication failed")
+          else
+            fail!("xauth not allowed for client application")
+          end
+        else 
 
-        # Exchange the access token and return it
-        if access_token = (current_token && current_token.exchange!(oauth_request.oauth_verifier))
-          custom! [200, {}, ["oauth_token=#{escape(access_token.token)}&oauth_token_secret=#{escape(access_token.secret)}"]]
-        else
-          fail!("Request token exchange failed")
+          # Exchange the access token and return it
+          if !(access_token = (current_token && current_token.exchange!(oauth_request.oauth_verifier)))
+            fail!("Request token exchange failed")
+          end
+        end
+        
+        if access_token
+          custom! [200, {}, ["oauth_token=#{escape(access_token.token)}&oauth_token_secret=#{escape(access_token.secret)}"]]        
         end
       else
         
@@ -41,7 +59,7 @@ module WardenOauthProvider
       end
     end
     
-  private
+  protected
   
     def request
       @request ||= Rack::Request.new(env)
@@ -77,6 +95,22 @@ module WardenOauthProvider
       env['warden']
     end
     
+    def xauth_params?
+      request.post? and !xauth_username.nil? and !xauth_password.nil?
+    end
+    
+    def xauth_mode
+      request.params['x_auth_mode']
+    end
+    
+    def xauth_username
+      request.params['x_auth_username']
+    end
+
+    def xauth_password
+      request.params['x_auth_password']
+    end
+        
   end
   
 end

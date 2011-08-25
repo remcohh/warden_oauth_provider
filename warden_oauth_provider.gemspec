@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = WardenOauthProvider::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Edwin Vlieg", "Berend van Bruijnsvoort"]
-  s.email       = ["info@moneybird.nl"]
+  s.email       = ["info@moneybird.com"]
   s.homepage    = "https://github.com/bluetools/warden_oauth_provider"
   s.summary     = %q{Warden strategy for OAuth provider}
   s.description = %q{Warden strategy for OAuth provider}

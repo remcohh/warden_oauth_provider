@@ -25,11 +25,11 @@ module RequestHelper
     # Required for authorize call to the app
     Warden::Strategies.add(:success) do
       def valid?
-        !params["username"].nil?
+        !params["username"].nil? and !params["password"].nil?
       end
       
       def authenticate!
-        if u = User.where(:name => params["username"]).first
+        if u = User.where(:name => params["username"], :password => params["password"]).first
           success!(u)
         else
           fail!("User unknown")
@@ -41,6 +41,9 @@ module RequestHelper
     opts[:default_strategies]  ||= [:oauth_provider, :success]
     opts[:oauth_request_token_path] ||= "/oauth/request_token"
     opts[:oauth_access_token_path] ||= "/oauth/access_token"
+    opts[:xauth_user]  ||= Proc.new do |env, username, password|
+      User.where(:name => username, :password => password).first
+    end
     
     Rack::Builder.new do
       use opts[:session] || RequestHelper::Session

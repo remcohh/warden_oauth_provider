@@ -46,7 +46,7 @@ describe WardenOauthProvider::TokenStrategy do
     
     # Step 2 - Authorize
     req = WardenOauthProvider::Token::Request.find_by_token(oauth_request_token)
-    env_step2 = env_with_params("/oauth/authorize", {:oauth_token => oauth_request_token, :username => "John"}, {})
+    env_step2 = env_with_params("/oauth/authorize", {:oauth_token => oauth_request_token, :username => "John", :password => "testtest"}, {})
     response = setup_rack(nil, :session => session).call(env_step2)
     response.first.should == 302
     location = URI.parse(response[1]["Location"])
@@ -110,7 +110,7 @@ describe WardenOauthProvider::TokenStrategy do
     
     # Step 2 - Authorize
     req = WardenOauthProvider::Token::Request.find_by_token(oauth_request_token)
-    env_step2 = env_with_params("/oauth/authorize", {:oauth_token => oauth_request_token, :username => "John"}, {})
+    env_step2 = env_with_params("/oauth/authorize", {:oauth_token => oauth_request_token, :username => "John", :password => "testtest"}, {})
     response = setup_rack(nil, :session => session).call(env_step2)
     response.first.should == 302
     location = URI.parse(response[1]["Location"])
