@@ -49,6 +49,20 @@ During the oauth process, the end-user is redirected to your application to auth
   end
 end</pre>
 
+h2. xauth
+
+The oauth provider has support for xauth, which supports requests for access tokens without user interaction. More information can be found at "dev.twitter.com":https://dev.twitter.com/docs/oauth/xauth. In order to enable xauth, make sure you set the @xauth_enabled@ boolean for a trusted client application to @true@. Furthermore you should define how the strategy should authenticate a valid user of your system by defining a Proc for the @xauth_user@ Warden config option.
+
+<pre>YourApp::Application.config.middleware.use Warden::Manager do |manager|
+  manager.default_strategies :oauth_provider, :http_basic, :password
+  manager.failure_app              = SessionsController
+  manager.oauth_request_token_path = "/oauth/request_token"
+  manager.oauth_access_token_path  = "/oauth/access_token"
+  manager.xauth_user               = Proc.new do |env, username, password|
+    User.authenticate(username, password)  # Return nil when authentication fails or a user when success
+  end
+end</pre>
+
 h2. Reporting bugs
 
 Please report bugs in this gem via Github Issues: https://github.com/bluetools/warden_oauth_provider/issues
