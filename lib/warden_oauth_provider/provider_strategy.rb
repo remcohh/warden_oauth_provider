@@ -21,7 +21,7 @@ module WardenOauthProvider
         
         # Return a request token for the client application
         request_token = WardenOauthProvider::Token::Request.create!(:client_application => client_application, :callback_url => oauth_request.oauth_callback)
-        custom! [200, {}, ["oauth_token=#{escape(request_token.token)}&oauth_token_secret=#{escape(request_token.secret)}&oauth_callback_confirmed=true"]]
+        custom! [200, { 'Content-Type' => 'text/html' }, ["oauth_token=#{escape(request_token.token)}&oauth_token_secret=#{escape(request_token.secret)}&oauth_callback_confirmed=true"]]
       when warden.config.oauth_access_token_path
         
         if xauth_params? and xauth_mode == 'client_auth'
@@ -46,7 +46,7 @@ module WardenOauthProvider
         end
         
         if access_token
-          custom! [200, {}, ["oauth_token=#{escape(access_token.token)}&oauth_token_secret=#{escape(access_token.secret)}"]]        
+          custom! [200, { 'Content-Type' => 'text/html' }, ["oauth_token=#{escape(access_token.token)}&oauth_token_secret=#{escape(access_token.secret)}"]]        
         end
       else
         
