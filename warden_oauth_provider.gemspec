@@ -19,9 +19,9 @@ Gem::Specification.new do |s|
   
   s.add_dependency              'warden',         '>= 1.0.0'
   s.add_dependency              'oauth',          '~> 0.4.0'
-  s.add_dependency              'activerecord',   '~> 3.0.0'
+  s.add_dependency              'activerecord',   '>= 3.0.0'
   s.add_development_dependency  'rspec',          '~> 2.0'
   s.add_development_dependency  'rake'
-  s.add_development_dependency  'sqlite3'
+  s.add_development_dependency  'sqlite3',        '~> 1.3.5'
   s.add_development_dependency  'factory_girl',   '~> 1.3.0'
 end

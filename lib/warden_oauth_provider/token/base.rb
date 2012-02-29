@@ -2,6 +2,7 @@ module WardenOauthProvider
   module Token
     class Base < ActiveRecord::Base
       set_table_name "oauth_tokens"
+      # self.table_name = "oauth_tokens"
       
       belongs_to :client_application
       belongs_to :user
