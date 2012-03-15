@@ -1,7 +1,6 @@
 module WardenOauthProvider
   class Nonce < ActiveRecord::Base
-    set_table_name "oauth_nonces"
-    # self.table_name = "oauth_nonces"
+    self.table_name = "oauth_nonces"
     
     validates_presence_of :nonce, :timestamp
     validates_uniqueness_of :nonce, :scope => :timestamp
