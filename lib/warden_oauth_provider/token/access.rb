@@ -3,7 +3,7 @@ module WardenOauthProvider
     class Access < Base
       validates_presence_of :user, :secret
       
-      attr_accessible :client_application, :user
+      attr_accessible :user
     
       before_create do
         self.authorized_at = Time.now

@@ -20,6 +20,7 @@ end
 ActiveRecord::Base.establish_connection(:adapter => 'sqlite3', :database => ':memory:')
 ActiveRecord::Migration.verbose = false
 ActiveRecord::Base.logger = Logger.new("test.log")
+ActiveRecord::Base.mass_assignment_sanitizer = :strict
 
 ActiveRecord::Schema.define do
   create_table :client_applications, :force => true do |t|

@@ -8,6 +8,8 @@ module WardenOauthProvider
       
       validates_uniqueness_of :token
       validates_presence_of :client_application, :token
+      
+      attr_accessible :client_application, :client_application_id
 
       scope :validated, where("authorized_at IS NOT NULL and invalidated_at IS NULL")
 

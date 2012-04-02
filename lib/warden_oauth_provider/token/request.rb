@@ -2,7 +2,7 @@ module WardenOauthProvider
   module Token
     class Request < Base
 
-      attr_accessible :client_application, :callback_url
+      attr_accessible :callback_url
 
       def authorize!(user)
         return false if authorized? or user.nil?
