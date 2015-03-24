@@ -11,7 +11,7 @@ module WardenOauthProvider
       
       attr_accessible :client_application, :client_application_id
 
-      scope :validated, where("authorized_at IS NOT NULL and invalidated_at IS NULL")
+      scope :validated, ->{ where("authorized_at IS NOT NULL and invalidated_at IS NULL")}
 
       before_validation(:on => :create) do
         self.token = OAuth::Helper.generate_key(40)[0,40]
